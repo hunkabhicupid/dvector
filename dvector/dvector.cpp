@@ -2,29 +2,27 @@
 //
 
 #include "stdafx.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 vector<vector<int16_t>> orig_vec;
 
-void PrintVector (vector<vector<int16_t>>& vec, int16_t num_routers)
-{
+void PrintVector(vector<vector<int16_t>> &vec, int16_t num_routers) {
     cout << endl;
     cout << " ";
-    for (int16_t i = 0; i < num_routers; i++)
-    {
+    for (int16_t i = 0; i < num_routers; i++) {
         cout << "  " << static_cast<char>(65 + i);
     }
-    for (int i = 0; i < num_routers; i++) { 
+    for (int i = 0; i < num_routers; i++) {
         cout << endl << static_cast<char>(65 + i);
         for (int16_t j = 0; j < num_routers; j++) {
             cout << "  " << orig_vec[i][j];
-        }              
+        }
     }
 }
 
-void InitializeVectorWithZeros(vector<vector<int16_t>>& vec, int16_t num_routers)
-{
+void InitializeVectorWithZeros(vector<vector<int16_t>> &vec,
+                               int16_t num_routers) {
     for (int i = 0; i < num_routers; i++) {
         vector<int16_t> row; // Create an empty row
         for (int16_t j = 0; j < num_routers; j++) {
@@ -34,29 +32,25 @@ void InitializeVectorWithZeros(vector<vector<int16_t>>& vec, int16_t num_routers
     }
 }
 
-int16_t NodeIndex (char c)
-{
-    if (c >= 'A' && c <= 'Z')
-    {
+int16_t NodeIndex(char c) {
+    if (c >= 'A' && c <= 'Z') {
         return (c - 65);
     }
 
-    if (c >= 'a' && c <= 'z')
-    {
+    if (c >= 'a' && c <= 'z') {
         return (c - 97);
     }
 
     throw std::exception("Invalid Input");
 }
 
-void ParseLinkCostAndUpdateOrigVector(const string str)
-{
-    char* cstr = new char[str.length() + 1];
+void ParseLinkCostAndUpdateOrigVector(const string str) {
+    char *cstr = new char[str.length() + 1];
     size_t len = str.copy(cstr, str.length());
     cstr[len] = '\0';
 
-    char * next_token;
-    char * pch = strtok_s(cstr, ",", &next_token);
+    char *next_token;
+    char *pch = strtok_s(cstr, ",", &next_token);
     if (pch == nullptr)
         throw std::exception("Invalid Input");
 
@@ -77,28 +71,28 @@ void ParseLinkCostAndUpdateOrigVector(const string str)
         cost = strtoul(pch, nullptr, 10);
 
     orig_vec[src][dest] = cost;
+    orig_vec[dest][src] = cost;
+
+    // todo: Inform both about the change
 
     delete[] cstr;
 }
 
-void ParseInputAndUpdateOrigVector(const string& str)
-{
-    char* cstr = new char[str.length()+1];
+void ParseInputAndUpdateOrigVector(const string &str) {
+    char *cstr = new char[str.length() + 1];
     size_t len = str.copy(cstr, str.length());
     cstr[len] = '\0';
-    
-    char * next_token;
-    char * pch = strtok_s(cstr, ";", &next_token);
-    while (pch != nullptr)
-    {
+
+    char *next_token;
+    char *pch = strtok_s(cstr, ";", &next_token);
+    while (pch != nullptr) {
         ParseLinkCostAndUpdateOrigVector(pch);
         pch = strtok_s(nullptr, ";", &next_token);
     }
-    delete [] cstr;
+    delete[] cstr;
 }
 
-int main()
-{
+int main() {
     int16_t num_routers;
     cout << "No: of routers(max 26): ";
     cin >> num_routers;
@@ -107,16 +101,18 @@ int main()
         throw std::exception("Invalid Input");
 
     cout << "Routers:" << endl;
-    for(int16_t i = 0; i < num_routers; i++)
-        cout << static_cast<char>(65+i) << " ";
+    for (int16_t i = 0; i < num_routers; i++)
+        cout << static_cast<char>(65 + i) << " ";
 
     // initialize the initial link costs vectors
     InitializeVectorWithZeros(orig_vec, num_routers);
 
     // get the initial link costs
     string input;
-    cout << "Link cost between each pair of routers (Set to \"inf\" if no connection)"
-         << endl  << "<example A,B,7;B,C,1;C,E,inf; and so on> ? ";
+    cout << "Link cost between each pair of routers (Set to \"inf\" if no "
+            "connection)"
+         << endl
+         << "<example A,B,7;B,C,1;C,E,inf; and so on> ? ";
     cin.ignore();
     getline(cin, input);
     ParseInputAndUpdateOrigVector(input);
@@ -125,7 +121,6 @@ int main()
     PrintVector(orig_vec, num_routers);
 
     // print the least cost path
-    
+
     return 0;
 }
-
