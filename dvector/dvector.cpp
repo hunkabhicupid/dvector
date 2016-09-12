@@ -2,8 +2,6 @@
 //
 
 #include "stdafx.h"
-#include <string>
-#include <vector>
 
 vector<vector<int16_t>> orig_vec;
 
@@ -32,18 +30,6 @@ void InitializeVectorWithZeros(vector<vector<int16_t>> &vec,
     }
 }
 
-int16_t NodeIndex(char c) {
-    if (c >= 'A' && c <= 'Z') {
-        return (c - 65);
-    }
-
-    if (c >= 'a' && c <= 'z') {
-        return (c - 97);
-    }
-
-    throw std::exception("Invalid Input");
-}
-
 void ParseLinkCostAndUpdateOrigVector(const string str) {
     char *cstr = new char[str.length() + 1];
     size_t len = str.copy(cstr, str.length());
@@ -54,13 +40,13 @@ void ParseLinkCostAndUpdateOrigVector(const string str) {
     if (pch == nullptr)
         throw std::exception("Invalid Input");
 
-    int16_t src = NodeIndex(pch[0]);
+    int16_t src = Node::Index (pch[0]);
 
     pch = strtok_s(nullptr, ",", &next_token);
     if (pch == nullptr)
         throw std::exception("Invalid Input");
 
-    int16_t dest = NodeIndex(pch[0]);
+    int16_t dest = Node::Index(pch[0]);
 
     pch = strtok_s(nullptr, ",", &next_token);
     if (pch == nullptr)
@@ -68,7 +54,7 @@ void ParseLinkCostAndUpdateOrigVector(const string str) {
 
     int16_t cost = 0;
     if ((strcmp(pch, "inf") != 0) && (strcmp(pch, "INF") != 0))
-        cost = strtoul(pch, nullptr, 10);
+        cost = static_cast<int16_t>(strtoul(pch, nullptr, 10));
 
     orig_vec[src][dest] = cost;
     orig_vec[dest][src] = cost;
@@ -121,6 +107,12 @@ int main() {
     PrintVector(orig_vec, num_routers);
 
     // print the least cost path
+
+    // Test
+    Node::CreateNode('A');
+    Node::CreateNode('B');
+    Node::Send('A');
+    Node::Send('B');
 
     return 0;
 }

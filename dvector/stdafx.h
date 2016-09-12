@@ -12,6 +12,12 @@
 #include <iostream>
 using namespace std;
 
+#include <string>
+#include <vector>
+
+#include "thread_win.h"
+#include "node.h"
+
 
 
 // TODO: reference additional headers your program requires here
