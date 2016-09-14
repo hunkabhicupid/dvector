@@ -5,30 +5,20 @@
 
 vector<vector<int16_t>> orig_vec;
 
-void PrintVector(vector<vector<int16_t>> &vec, int16_t num_routers) {
+void PrintVector(vector<vector<int16_t>> &vec) {
+    int16_t num_routers = static_cast<int16_t>(vec.size());
     cout << endl;
     cout << " ";
     for (int16_t i = 0; i < num_routers; i++) {
-        cout << "  " << static_cast<char>(65 + i);
+        cout << "  " << std::setw(5) << std::right << static_cast<char>(65 + i);
     }
     for (int i = 0; i < num_routers; i++) {
         cout << endl << static_cast<char>(65 + i);
         for (int16_t j = 0; j < num_routers; j++) {
-            cout << "  " << orig_vec[i][j];
+            cout << "  " << std::setw(5) << std::right << vec[i][j];
         }
     }
-	cout << endl;
-}
-
-void InitializeVectorWithZeros(vector<vector<int16_t>> &vec,
-                               int16_t num_routers) {
-    for (int i = 0; i < num_routers; i++) {
-        vector<int16_t> row; // Create an empty row
-        for (int16_t j = 0; j < num_routers; j++) {
-            row.push_back(0); // Add an element (column) to the row
-        }
-        vec.push_back(row); // Add the row to the main vector
-    }
+    cout << endl;
 }
 
 void ParseLinkCostAndUpdateOrigVector(const string str) {
@@ -41,26 +31,27 @@ void ParseLinkCostAndUpdateOrigVector(const string str) {
     if (pch == nullptr)
         throw std::exception("Invalid Input");
 
-    int16_t src = Node::Index (pch[0]);
+    int16_t src = Node::ToIndex(pch[0]);
 
     pch = strtok_s(nullptr, ",", &next_token);
     if (pch == nullptr)
         throw std::exception("Invalid Input");
 
-    int16_t dest = Node::Index(pch[0]);
+    int16_t dest = Node::ToIndex(pch[0]);
 
     pch = strtok_s(nullptr, ",", &next_token);
     if (pch == nullptr)
         throw std::exception("Invalid Input");
 
-    int16_t cost = 0;
+    int16_t cost = INT16_MAX;
     if ((strcmp(pch, "inf") != 0) && (strcmp(pch, "INF") != 0))
         cost = static_cast<int16_t>(strtoul(pch, nullptr, 10));
 
+    if (cost <= 0)
+        cost = INT16_MAX;
+
     orig_vec[src][dest] = cost;
     orig_vec[dest][src] = cost;
-
-    // todo: Inform both about the change
 
     delete[] cstr;
 }
@@ -92,11 +83,12 @@ int main() {
         cout << static_cast<char>(65 + i) << " ";
 
     // initialize the initial link costs vectors
-    InitializeVectorWithZeros(orig_vec, num_routers);
+    Node::InitializeVector(orig_vec, num_routers);
 
     // get the initial link costs
     string input;
-    cout << "Link cost between each pair of routers (Set to \"inf\" if no "
+    cout << endl
+         << "Link cost between each pair of routers (Set to \"inf\" if no "
             "connection)"
          << endl
          << "<example A,B,7;B,C,1;C,E,inf; and so on> ? ";
@@ -105,15 +97,20 @@ int main() {
     ParseInputAndUpdateOrigVector(input);
 
     // print the input link costs vectors
-    PrintVector(orig_vec, num_routers);
+    PrintVector(orig_vec);
 
-    // print the least cost path
+    for (int16_t i = 0; i < num_routers; i++)
+        Node::CreateNode(static_cast<char>(65 + i));
 
-    // Test
-    Node::CreateNode('A');
-    Node::CreateNode('B');
-    Node::Send('A', WM_APP + 1, nullptr);
-    Node::Send('B', WM_APP + 1, nullptr);
+    // Update orig vector for all nodes
+    Node::NotifyUpdatedOrigVector(orig_vec);
+    Node::DumpAll();
+
+    //// Test
+    // Node::CreateNode('A');
+    // Node::CreateNode('B');
+    // Node::Send('A', WM_UPDATE_ROUTING_TABLE, nullptr);
+    // Node::Send('B', WM_UPDATE_ROUTING_TABLE, nullptr);
 
     return 0;
 }

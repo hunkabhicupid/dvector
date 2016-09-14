@@ -14,6 +14,7 @@ using namespace std;
 
 #include <string>
 #include <vector>
+#include <iomanip>
 
 #include "thread_win.h"
 #include "node.h"
