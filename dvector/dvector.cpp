@@ -17,6 +17,7 @@ void PrintVector(vector<vector<int16_t>> &vec, int16_t num_routers) {
             cout << "  " << orig_vec[i][j];
         }
     }
+	cout << endl;
 }
 
 void InitializeVectorWithZeros(vector<vector<int16_t>> &vec,
@@ -111,8 +112,8 @@ int main() {
     // Test
     Node::CreateNode('A');
     Node::CreateNode('B');
-    Node::Send('A');
-    Node::Send('B');
+    Node::Send('A', WM_APP + 1, nullptr);
+    Node::Send('B', WM_APP + 1, nullptr);
 
     return 0;
 }
