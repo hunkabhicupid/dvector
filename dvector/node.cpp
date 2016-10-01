@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include <algorithm>
 #include <cassert>
-#include <sstream>
 
 map<char, shared_ptr<Node>> Node::_map;
 
@@ -15,14 +14,14 @@ void Node::ThreadMain() {
             char src_node = static_cast<char>(msg.lParam);
             vector<vector<int16_t>> *vec =
                 reinterpret_cast<vector<vector<int16_t>> *>(msg.wParam);
-            
+
             std::stringstream str;
             str << "Node " << _nodechar << " received a message from "
                 << src_node << "." << endl
                 << std::flush;
             std::cout << str.str();
 
-			HandleChangeFromNeighbor(src_node, *vec);
+            HandleChangeFromNeighbor(src_node, *vec);
 
             delete vec;
         }
@@ -105,7 +104,7 @@ Node::Node(char c) {
     _isReady = false;
     _nodechar = c;
     _nodeindex = ToIndex(c);
-	_informNeighborDelayed = false;
+    _informNeighborDelayed = false;
     assert(PlatformThread::Create(0, this, &_handle) == true);
 }
 
@@ -141,14 +140,14 @@ void Node::UpdateOrigVector(const vector<int16_t> &orig_vector) {
     }
 
     if (_shortest_path_vector != latest_from_orig) {
-        // Dump the latest shorted path vector        
+        // Dump the latest shorted path vector
         _shortest_path_vector = latest_from_orig;
-		Dump();
+        Dump();
 
         // check if that changes affects our _shortest_path_vector
         // if yes, then send the same to neighbors
-		_informNeighborDelayed = true;
-        //InformNeighbors();
+        _informNeighborDelayed = true;
+        // InformNeighbors();
     }
 
     assert(ValidateShortestPath());
@@ -158,17 +157,19 @@ PlatformThreadId Node::GetThreadId() const { return ::GetThreadId(_handle); }
 
 bool Node::IsReady() const { return _isReady; }
 
-void Node::InformNeighborsDelayed()
-{
-	for (auto &i : _map) {
-		shared_ptr<Node> node = i.second;
-		if (node->_informNeighborDelayed)
-		{
-			node->_informNeighborDelayed = false;
-			node->InformNeighbors();
-		}
-	}
+void Node::InformNeighborsDelayed() {
+    for (auto &i : _map) {
+        shared_ptr<Node> node = i.second;
+        if (node->_informNeighborDelayed) {
+            node->_informNeighborDelayed = false;
+            node->InformNeighbors();
+        }
+    }
+}
 
+void Node::PrintLowCostPath(int16_t src, int16_t dest)
+{
+	cout << _map[ToChar(src)]->GetLeastCostPathValueTo(dest) << endl;
 }
 
 // Called in situations when something has changed
@@ -184,23 +185,28 @@ void Node::InformNeighbors() {
     }
 }
 
-void Node::HandleChangeFromNeighbor(char neighbor, vector<vector<int16_t>>& vec)
-{
-	int16_t num_routers =
-		static_cast<int16_t>(_shortest_path_vector.size());
-	vector<vector<int16_t>> ret(num_routers, vector<int16_t>(num_routers));
-	GetLatestShortestPath(ret, vec, ToIndex(neighbor));
-	if (_shortest_path_vector != ret) {
-		// Dump the latest shorted path vector
-		_shortest_path_vector = ret;
-		Dump();
+void Node::HandleChangeFromNeighbor(char neighbor,
+                                    vector<vector<int16_t>> &vec) {
+    int16_t num_routers = static_cast<int16_t>(_shortest_path_vector.size());
+    vector<vector<int16_t>> ret(num_routers, vector<int16_t>(num_routers));
+    GetLatestShortestPath(ret, vec, ToIndex(neighbor));
+    if (_shortest_path_vector != ret) {
+        // Dump the latest shorted path vector
+        _shortest_path_vector = ret;
+        Dump();
 
-		// check if that changes affects our _shortest_path_vector
-		// if yes, then send the same to neighbors
-		InformNeighbors();
-	}
+        // check if that changes affects our _shortest_path_vector
+        // if yes, then send the same to neighbors
+        InformNeighbors();
+    }
 
-	assert(ValidateShortestPath());
+    assert(ValidateShortestPath());
+}
+
+int16_t Node::GetLeastCostPathValueTo(int16_t to) {
+    int16_t to_index = to;
+    return *(std::min_element(_shortest_path_vector[to_index].begin(),
+                              _shortest_path_vector[to_index].end()));
 }
 
 void Node::GetLatestShortestPath(vector<vector<int16_t>> &ret,
@@ -214,7 +220,7 @@ void Node::GetLatestShortestPath(vector<vector<int16_t>> &ret,
     k = latest_from;
     const int16_t min_cost_to_k =
         *(std::min_element(ret[k].begin(), ret[k].end()));
-	const int16_t cost_to_k = ret[k][k];
+    const int16_t cost_to_k = ret[k][k];
     // Apply the update
     for (i = 0; i < num_routers; i++) {
         if (i == _nodeindex)
@@ -267,22 +273,22 @@ Node::~Node() {
 }
 
 void Node::Dump() {
-	std::stringstream str;
+    std::stringstream str;
     int16_t num_routers = static_cast<int16_t>(_shortest_path_vector.size());
-	str << endl;
-	str << "For " << _nodechar << " (row TO column VIA)" << endl;
+    str << endl;
+    str << "For " << _nodechar << " (row TO column VIA)" << endl;
 
-	str << " ";
+    str << " ";
     for (int16_t i = 0; i < num_routers; i++) {
-		str << "  " << std::setw(5) << std::right << static_cast<char>(65 + i);
+        str << "  " << std::setw(5) << std::right << static_cast<char>(65 + i);
     }
     for (int i = 0; i < num_routers; i++) {
-		str << endl << static_cast<char>(65 + i);
+        str << endl << static_cast<char>(65 + i);
         for (int16_t j = 0; j < num_routers; j++) {
-			str << "  " << std::setw(5) << std::right
-                 << _shortest_path_vector[i][j];
+            str << "  " << std::setw(5) << std::right
+                << _shortest_path_vector[i][j];
         }
     }
-	str << endl;
-	cout << str.str();
+    str << endl;
+    cout << str.str();
 }

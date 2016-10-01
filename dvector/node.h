@@ -12,6 +12,7 @@ public:
     static shared_ptr<Node> CreateNode(char node_char);	
 	static void NotifyUpdatedOrigVector(const vector<vector<int16_t>>& orig_vector);
 	static void InformNeighborsDelayed();
+	static void PrintLowCostPath(int16_t src, int16_t dest);
 	static void DumpAll();
     static void Send(char dest_node_char, char src_char_node, UINT msg, void* msg_data);  
     static int16_t ToIndex(char c);
@@ -29,6 +30,8 @@ public:
 
 	void InformNeighbors();
 	void HandleChangeFromNeighbor(char neighbor, vector<vector<int16_t>>& vec);
+
+	int16_t GetLeastCostPathValueTo(int16_t to);
 	
 private:	
 	void GetLatestShortestPath(vector<vector<int16_t>>& ret, vector<vector<int16_t>>& latest, int16_t latest_from) const;

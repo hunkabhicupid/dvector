@@ -18,7 +18,7 @@ using namespace std;
 
 #include "thread_win.h"
 #include "node.h"
-
+#include <sstream>
 
 
 // TODO: reference additional headers your program requires here
