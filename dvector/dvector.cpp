@@ -84,33 +84,35 @@ int main() {
 
     // initialize the initial link costs vectors
     Node::InitializeVector(orig_vec, num_routers);
-
-    // get the initial link costs
-    string input;
-    cout << endl
-         << "Link cost between each pair of routers (Set to \"inf\" if no "
-            "connection)"
-         << endl
-         << "<example A,B,7;B,C,1;C,E,inf; and so on> ? ";
-    cin.ignore();
-    getline(cin, input);
-    ParseInputAndUpdateOrigVector(input);
-
-    // print the input link costs vectors
-    PrintVector(orig_vec);
-
     for (int16_t i = 0; i < num_routers; i++)
         Node::CreateNode(static_cast<char>(65 + i));
 
-    // Update orig vector for all nodes
-    Node::NotifyUpdatedOrigVector(orig_vec);
-    Node::DumpAll();
+    bool quit = false;
 
-    //// Test
-    // Node::CreateNode('A');
-    // Node::CreateNode('B');
-    // Node::Send('A', WM_UPDATE_ROUTING_TABLE, nullptr);
-    // Node::Send('B', WM_UPDATE_ROUTING_TABLE, nullptr);
+    do {
+        // get the initial link costs
+        string input;
+        cout << endl
+             << "Link cost between each pair of routers (Set to \"inf\" if no "
+                "connection)"
+             << endl
+             << "<example A,B,7;B,C,1;C,E,inf; and so on> ? ";
+        cin.ignore();
+        getline(cin, input);
+        ParseInputAndUpdateOrigVector(input);
+
+        // print the input link costs vectors
+        PrintVector(orig_vec);
+
+        // Update orig vector for all nodes
+        Node::NotifyUpdatedOrigVector(orig_vec);
+		Node::InformNeighborsDelayed();
+
+        char c;
+        cout << " Press 'q' to quit else any other key to continue...." << endl;
+        cin >> c;
+        quit = (c == 'q');
+    } while (!quit);
 
     return 0;
 }

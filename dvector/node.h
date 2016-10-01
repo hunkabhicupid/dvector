@@ -11,8 +11,9 @@ public:
 	static void InitializeVector(vector<vector<int16_t>> &vec, int16_t num_routers);
     static shared_ptr<Node> CreateNode(char node_char);	
 	static void NotifyUpdatedOrigVector(const vector<vector<int16_t>>& orig_vector);
+	static void InformNeighborsDelayed();
 	static void DumpAll();
-    static void Send(char dest_node_char, UINT msg, void* msg_data);  
+    static void Send(char dest_node_char, char src_char_node, UINT msg, void* msg_data);  
     static int16_t ToIndex(char c);
 	static char ToChar(int16_t c);
 
@@ -25,6 +26,9 @@ public:
     void UpdateOrigVector(const vector<int16_t>& orig_vector);
     PlatformThreadId GetThreadId() const;
 	bool IsReady() const;
+
+	void InformNeighbors();
+	void HandleChangeFromNeighbor(char neighbor, vector<vector<int16_t>>& vec);
 	
 private:	
 	void GetLatestShortestPath(vector<vector<int16_t>>& ret, vector<vector<int16_t>>& latest, int16_t latest_from) const;
@@ -39,4 +43,5 @@ private:
 	vector<int16_t> _orig_vector;			// to a node via that node
 	vector<vector<int16_t>> _shortest_path_vector;	// to a node may via the same node or any other node
     static map<char, shared_ptr<Node>> _map;
+	bool _informNeighborDelayed; // used only by main thread for delayed information
 };
