@@ -136,7 +136,32 @@ void Node::UpdateOrigVector(const vector<int16_t> &orig_vector) {
 
     vector<vector<int16_t>> latest_from_orig = _shortest_path_vector;
     for (int i = 0; i < num_routers; i++) {
-        latest_from_orig[i][i] = orig_vector[i];
+        if (_nodeindex == i)
+            continue;
+        if (latest_from_orig[i][i] != orig_vector[i]) {
+            // the new link has come up - will handle later
+            // or the link has gone down
+            if (orig_vector[i] == SHRT_MAX) {
+                // any paths via this one needs to made SHRT_MAX
+                for (int j = 0; j < num_routers; j++) {
+                    if (j == i)
+                        continue;
+                    latest_from_orig[j][i] = SHRT_MAX;
+                }
+            }
+            // either the cost has changed + or -
+            else if ((latest_from_orig[i][i] != SHRT_MAX)) {
+                for (int j = 0; j < num_routers; j++) {
+                    if (j == i)
+                        continue;
+                    if (latest_from_orig[j][i] != SHRT_MAX)
+                        latest_from_orig[j][i] = latest_from_orig[j][i] -
+                                                 latest_from_orig[i][i] +
+                                                 orig_vector[i];
+                }
+            }
+            latest_from_orig[i][i] = orig_vector[i];
+        }
     }
 
     if (_shortest_path_vector != latest_from_orig) {
@@ -167,9 +192,8 @@ void Node::InformNeighborsDelayed() {
     }
 }
 
-void Node::PrintLowCostPath(int16_t src, int16_t dest)
-{
-	cout << _map[ToChar(src)]->GetLeastCostPathValueTo(dest) << endl;
+void Node::PrintLowCostPath(int16_t src, int16_t dest) {
+    cout << _map[ToChar(src)]->GetLeastCostPathValueTo(dest) << endl;
 }
 
 // Called in situations when something has changed
@@ -221,6 +245,9 @@ void Node::GetLatestShortestPath(vector<vector<int16_t>> &ret,
     const int16_t min_cost_to_k =
         *(std::min_element(ret[k].begin(), ret[k].end()));
     const int16_t cost_to_k = ret[k][k];
+
+	// assumption ret[k][k] == ret[_nodeindex][_nodeindex]
+
     // Apply the update
     for (i = 0; i < num_routers; i++) {
         if (i == _nodeindex)
@@ -229,9 +256,12 @@ void Node::GetLatestShortestPath(vector<vector<int16_t>> &ret,
         const int16_t min_cost_to_i_from_k =
             *(std::min_element(latest[i].begin(), latest[i].end()));
 
-        if (ret[i][k] > cost_to_k + min_cost_to_i_from_k) {
-            ret[i][k] = cost_to_k + min_cost_to_i_from_k;
-        }
+		if ((cost_to_k != SHRT_MAX) && (min_cost_to_i_from_k != SHRT_MAX))
+			ret[i][k] = cost_to_k + min_cost_to_i_from_k;		
+
+        //if (ret[i][k] > cost_to_k + min_cost_to_i_from_k) {
+            //ret[i][k] = cost_to_k + min_cost_to_i_from_k;
+        //}
     }
 }
 

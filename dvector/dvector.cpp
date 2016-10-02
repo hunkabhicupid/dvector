@@ -6,23 +6,24 @@
 
 vector<vector<int16_t>> orig_vec;
 
-int DisplayMenu(string& input)
-{
-	int choice;
-	input = string("");
-	std::stringstream str;
-	str << "Press number as below: " << endl;
-	str << "1. Enter New Configuration: <enter A,B,7; B,C,1; C,E,inf and so on>" << endl;
-	str << "2. Get the least cost path between any 2 nodes: <node1>, <node2>" << endl;
-	str << "3. Quit" << endl;
-	cout << str.str();
+int DisplayMenu(string &input) {
+    int choice;
+    input = string("");
+    std::stringstream str;
+    str << "Press number as below: " << endl;
+    str << "1. Enter New Configuration: <enter A,B,7; B,C,1; C,E,inf and so on>"
+        << endl;
+    str << "2. Get the least cost path between any 2 nodes: <node1>, <node2>"
+        << endl;
+    str << "3. Quit" << endl;
+    cout << str.str();
 
-	cin >> choice;
-	if (choice == 3)
-		return choice;
-	cin.ignore();
-	getline(cin, input);
-	return choice;
+    cin >> choice;
+    if (choice == 3)
+        return choice;
+    cin.ignore();
+    getline(cin, input);
+    return choice;
 }
 
 void PrintVector(vector<vector<int16_t>> &vec) {
@@ -90,45 +91,42 @@ void ParseInputAndUpdateOrigVector(const string &str) {
     delete[] cstr;
 }
 
-void ParseNodeNode(const string &str, int16_t& src, int16_t& dest)
-{
-	char *cstr = new char[str.length() + 1];
-	size_t len = str.copy(cstr, str.length());
-	cstr[len] = '\0';
+void ParseNodeNode(const string &str, int16_t &src, int16_t &dest) {
+    char *cstr = new char[str.length() + 1];
+    size_t len = str.copy(cstr, str.length());
+    cstr[len] = '\0';
 
-	char *next_token;
-	char *pch = strtok_s(cstr, ",", &next_token);
-	if (pch == nullptr)
-		throw std::exception("Invalid Input");
+    char *next_token;
+    char *pch = strtok_s(cstr, ",", &next_token);
+    if (pch == nullptr)
+        throw std::exception("Invalid Input");
 
-	src = Node::ToIndex(pch[0]);
+    src = Node::ToIndex(pch[0]);
 
-	pch = strtok_s(nullptr, ",", &next_token);
-	if (pch == nullptr)
-		throw std::exception("Invalid Input");
+    pch = strtok_s(nullptr, ",", &next_token);
+    if (pch == nullptr)
+        throw std::exception("Invalid Input");
 
-	dest = Node::ToIndex(pch[0]);
+    dest = Node::ToIndex(pch[0]);
 
-	delete[] cstr;
+    delete[] cstr;
 }
 
-void HandleConfigChange(string& input)
-{
-	ParseInputAndUpdateOrigVector(input);
+void HandleConfigChange(string &input) {
+    ParseInputAndUpdateOrigVector(input);
 
-	// print the input link costs vectors
-	PrintVector(orig_vec);
+    // print the input link costs vectors
+    PrintVector(orig_vec);
 
-	// Update orig vector for all nodes
-	Node::NotifyUpdatedOrigVector(orig_vec);
-	Node::InformNeighborsDelayed();
+    // Update orig vector for all nodes
+    Node::NotifyUpdatedOrigVector(orig_vec);
+    Node::InformNeighborsDelayed();
 }
 
-void HandleLowCostPath(string& input)
-{
-	int16_t src, dest;
-	ParseNodeNode(input, src, dest);
-	Node::PrintLowCostPath(src, dest);
+void HandleLowCostPath(string &input) {
+    int16_t src, dest;
+    ParseNodeNode(input, src, dest);
+    Node::PrintLowCostPath(src, dest);
 }
 
 int main() {
@@ -153,32 +151,31 @@ int main() {
     // get the initial link costs
     string input;
     cout << endl
-            << "Link cost between each pair of routers (Set to \"inf\" if no "
+         << "Link cost between each pair of routers (Set to \"inf\" if no "
             "connection)"
-            << endl
-            << "<example A,B,7;B,C,1;C,E,inf; and so on> ? ";
+         << endl
+         << "<example A,B,7;B,C,1;C,E,inf; and so on> ? ";
     cin.ignore();
     getline(cin, input);
 
-	HandleConfigChange(input);
-	std::this_thread::sleep_for(1s);
+    HandleConfigChange(input);
+    std::this_thread::sleep_for(1s);
 
-	while(true) {
-		int choice = DisplayMenu(input);
-		quit = (choice == 3);
-		if (quit)
-			break;
-        switch (choice)
-        {
-		case 1:
-			HandleConfigChange(input);
-			std::this_thread::sleep_for(1s);
-			break;
-		case 2:
-			HandleLowCostPath(input);
-			break;
-		default:
-			break;
+    while (true) {
+        int choice = DisplayMenu(input);
+        quit = (choice == 3);
+        if (quit)
+            break;
+        switch (choice) {
+        case 1:
+            HandleConfigChange(input);
+            std::this_thread::sleep_for(1s);
+            break;
+        case 2:
+            HandleLowCostPath(input);
+            break;
+        default:
+            break;
         }
     }
 
