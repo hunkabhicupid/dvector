@@ -36,7 +36,8 @@ void PrintVector(vector<vector<int16_t>> &vec) {
     for (int i = 0; i < num_routers; i++) {
         cout << endl << static_cast<char>(65 + i);
         for (int16_t j = 0; j < num_routers; j++) {
-            cout << "  " << std::setw(5) << std::right << vec[i][j];
+            cout << "  " << std::setw(5) << std::right
+                 << ((vec[i][j] != INT16_MAX) ? vec[i][j] : -1);
         }
     }
     cout << endl;

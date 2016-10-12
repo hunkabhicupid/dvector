@@ -246,7 +246,7 @@ void Node::GetLatestShortestPath(vector<vector<int16_t>> &ret,
         *(std::min_element(ret[k].begin(), ret[k].end()));
     const int16_t cost_to_k = ret[k][k];
 
-	// assumption ret[k][k] == ret[_nodeindex][_nodeindex]
+    // assumption ret[k][k] == ret[_nodeindex][_nodeindex]
 
     // Apply the update
     for (i = 0; i < num_routers; i++) {
@@ -256,11 +256,11 @@ void Node::GetLatestShortestPath(vector<vector<int16_t>> &ret,
         const int16_t min_cost_to_i_from_k =
             *(std::min_element(latest[i].begin(), latest[i].end()));
 
-		if ((cost_to_k != SHRT_MAX) && (min_cost_to_i_from_k != SHRT_MAX))
-			ret[i][k] = cost_to_k + min_cost_to_i_from_k;		
+        if ((cost_to_k != SHRT_MAX) && (min_cost_to_i_from_k != SHRT_MAX))
+            ret[i][k] = cost_to_k + min_cost_to_i_from_k;
 
-        //if (ret[i][k] > cost_to_k + min_cost_to_i_from_k) {
-            //ret[i][k] = cost_to_k + min_cost_to_i_from_k;
+        // if (ret[i][k] > cost_to_k + min_cost_to_i_from_k) {
+        // ret[i][k] = cost_to_k + min_cost_to_i_from_k;
         //}
     }
 }
@@ -316,7 +316,9 @@ void Node::Dump() {
         str << endl << static_cast<char>(65 + i);
         for (int16_t j = 0; j < num_routers; j++) {
             str << "  " << std::setw(5) << std::right
-                << _shortest_path_vector[i][j];
+                << ((_shortest_path_vector[i][j] != INT16_MAX)
+                        ? _shortest_path_vector[i][j]
+                        : -1);
         }
     }
     str << endl;
