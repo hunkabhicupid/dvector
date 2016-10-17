@@ -164,9 +164,6 @@ int main() {
 
     while (true) {
         int choice = DisplayMenu(input);
-        quit = (choice == 3);
-        if (quit)
-            break;
         switch (choice) {
         case 1:
             HandleConfigChange(input);
@@ -175,9 +172,15 @@ int main() {
         case 2:
             HandleLowCostPath(input);
             break;
+		case 3:
         default:
-            break;
+			quit = true;
+			break;
         }
+
+		if (quit)
+			break;
+
     }
 
     return 0;
