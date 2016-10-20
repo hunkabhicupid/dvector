@@ -1,9 +1,9 @@
 # dvector
 InternetWorking Technologies Assignment (Exercise #3: Simulation of distance-vector algorithm)
 ## Prerequisites
-dvector has developed and built on Windows using Visual Studio 2015 Update 3; 
-no other version is supported is checked, it may or may not work.
+dvector has been developed and built on Windows using Visual Studio 2015 Update 3; 
+no other version is checked, it may or may not work on them.
 ## Get the Source Code
-`<addr>`git clone https://github.com/hunkabhicupid/dvector.git
+> git clone https://github.com/hunkabhicupid/dvector.git
 ## Using the Visual Studio IDE
-`<addr>`devenv dvector.sln
+> devenv dvector.sln
